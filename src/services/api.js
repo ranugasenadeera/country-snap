@@ -1,4 +1,4 @@
-const BASE_URL = import.meta.env.VITE_BASE_URL;
+const BASE_URL = "https://restcountries.com/v3.1"
 
 export async function getAllCountries() {
   const response = await fetch(`${BASE_URL}/all?fields=name,cca3,flags,capital,region,languages,population`)
