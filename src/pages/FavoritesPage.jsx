@@ -19,11 +19,11 @@ export default function FavoritesPage() {
 
   useEffect(() => {
     const loadFavorites = async () => {
-      if (!isAuthenticated()) {
-        setError("Please log in to view your favorites")
-        setIsLoading(false)
-        return
-      }
+      // if (!isAuthenticated()) {
+      //   setError("Please log in to view your favorites")
+      //   setIsLoading(false)
+      //   return
+      // }
       const user = getCurrentUser()
       if (!user || user.favoriteCountries.length === 0) {
         setFavoriteCountries([])
