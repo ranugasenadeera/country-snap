@@ -21,7 +21,6 @@ export default function FavoritesPage() {
       //   setIsLoading(false)
       //   return
       // }
-
       const user = getCurrentUser()
       if (!user || user.favoriteCountries.length === 0) {
         setFavoriteCountries([])
