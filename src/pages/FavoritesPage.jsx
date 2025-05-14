@@ -10,7 +10,10 @@ import CountryList from "../components/CountryList"
 import { Loader, Star } from "lucide-react"
 
 export default function FavoritesPage() {
-  const [favoriteCountries, setFavoriteCountries] = useState([])
+  const [favoriteCountries, setFavoriteCountries] = useState(() => {
+    const storedFavorites = localStorage.getItem("favoriteCountries")
+    return storedFavorites ? JSON.parse(storedFavorites) : []
+  })
   const [isLoading, setIsLoading] = useState(true)
   const [error, setError] = useState("")
 
@@ -44,6 +47,7 @@ export default function FavoritesPage() {
         }
 
         setFavoriteCountries(countriesData)
+        localStorage.setItem("favoriteCountries", JSON.stringify(countriesData))
       } catch (err) {
         setError("Failed to load favorite countries")
         console.error(err)
