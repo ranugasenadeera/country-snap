@@ -1,6 +1,7 @@
 "use client"
 
 import { useState, useEffect } from "react"
+import { useSearchParams, useNavigate } from "react-router-dom"
 import Header from "../components/Header"
 import Footer from "../components/Footer"
 import CountryList from "../components/CountryList"
@@ -9,12 +10,16 @@ import SearchBar from "../components/SearchBar"
 import { getAllCountries, getCountriesByRegion, getCountriesByLanguage, getCountryByName } from "../services/api"
 
 export default function ExplorePage() {
+  const [searchParams] = useSearchParams()
+  const navigate = useNavigate()
+  const initialRegion = searchParams.get("region") || ""
+  
   const [allCountries, setAllCountries] = useState([])
   const [displayedCountries, setDisplayedCountries] = useState([])
   const [isLoading, setIsLoading] = useState(true)
   const [error, setError] = useState("")
   const [searchQuery, setSearchQuery] = useState("")
-  const [selectedRegion, setSelectedRegion] = useState("")
+  const [selectedRegion, setSelectedRegion] = useState(initialRegion)
   const [selectedLanguage, setSelectedLanguage] = useState("")
 
   // Fetch all countries on mount for language filter options
@@ -22,7 +27,15 @@ export default function ExplorePage() {
     const fetchCountries = async () => {
       try {
         setIsLoading(true)
-        const data = await getAllCountries()
+        let data = []
+        
+        // If we have an initial region, fetch just that region's countries
+        if (initialRegion) {
+          data = await getCountriesByRegion(initialRegion)
+        } else {
+          data = await getAllCountries()
+        }
+        
         setAllCountries(data)
         setDisplayedCountries(data)
         setError("")
@@ -35,7 +48,7 @@ export default function ExplorePage() {
     }
 
     fetchCountries()
-  }, [])
+  }, [initialRegion])
 
   // Apply filters whenever they change
   useEffect(() => {
@@ -58,7 +71,7 @@ export default function ExplorePage() {
         }
         // Otherwise show all countries
         else {
-          result = [...allCountries]
+          result = await getAllCountries() // Fetch all countries when no filters are applied
         }
 
         // Apply additional language filter if both search/region and language are selected
@@ -82,7 +95,7 @@ export default function ExplorePage() {
     }
 
     applyFilters()
-  }, [searchQuery, selectedRegion, selectedLanguage, allCountries])
+  }, [searchQuery, selectedRegion, selectedLanguage])
 
   const handleRegionChange = (region) => {
     setSelectedRegion(region)
@@ -97,6 +110,7 @@ export default function ExplorePage() {
     setSelectedRegion("")
     setSelectedLanguage("")
     setSearchQuery("")
+    navigate("/explore") // Remove the region query parameter from URL
   }
 
   // Extract unique languages for filter dropdown
@@ -116,9 +130,13 @@ export default function ExplorePage() {
 
       <main className="flex-grow container mx-auto px-4 py-8">
         <div className="mb-8">
-          <h1 className="text-3xl font-bold mb-2 text-gray-800">Explore Countries</h1>
+          <h1 className="text-3xl font-bold mb-2 text-gray-800">
+            {selectedRegion ? `Countries in ${selectedRegion}` : "Explore Countries"}
+          </h1>
           <p className="text-gray-600">
-            Discover countries from around the world. Use filters and search to find specific countries.
+            {selectedRegion 
+              ? `Discover countries in ${selectedRegion}`
+              : "Discover countries from around the world. Use filters and search to find specific countries."}
           </p>
         </div>
 
